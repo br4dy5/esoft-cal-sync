@@ -26,6 +26,7 @@ SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'esoft-cal-sync'
 
+month = 0  # value is month to begin sync: 0 = current, 1 = next month, 2 = 2 months forward, etc
 
 def get_credentials():
     """
@@ -84,16 +85,26 @@ def login():
     service = discovery.build('calendar', 'v3', http=http)
 
 
-def resetCal():
+def resetCal(outlook):
     """
         Locates lessons previously scheduled in Google Calendar and deletes them
         to prevent duplicate events
     """
     lessons = []
-    now = datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Searching the upcoming 30 events')
+    first = datetime.today().replace(day=1, hour=0).isoformat() + 'Z'
+    current_month = int(datetime.now().strftime("%m"))
+    end_month = int(datetime.now().strftime("%m")) + outlook + 1
+    end_year = int(datetime.now().strftime("%Y"))
+    if current_month <= 12 and end_month > 12:
+        end_month -= 12
+        end_month = '%02d' % end_month
+        end_year += 1
+
+    last = datetime.today().replace(year=end_year, month=int(end_month), day=1).isoformat() + 'Z'
+    short_last = str(date.today().replace(year=end_year, month=int(end_month), day=1))
+    print('Searching for events through ' + short_last)
     eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=30, singleEvents=True,
+        calendarId='primary', timeMin=first, timeMax=last, maxResults=300, singleEvents=True,
         orderBy='startTime').execute()
     scheduled = eventsResult.get('items', [])
 
@@ -105,6 +116,9 @@ def resetCal():
             print('Deleting: ' + item['summary'])
             lessons.append(item['summary'])
             service.events().delete(calendarId='primary', eventId=item['id']).execute()
+    if len(lessons) == 0:
+        print('No scheduled lessons found in Google calendar')
+
 
 def pullSched(cal_mon):
     """
@@ -164,9 +178,16 @@ def formatEvents(events, cal_mon):
     while len(events) >= 3:
         event = events[0:3]
         event_day = int(event[0])
+        current_month = int(datetime.now().strftime("%m"))
         event_month = int(datetime.now().strftime("%m")) + cal_mon
         event_year = int(datetime.now().strftime("%Y"))
-        event_date = date(event_year, event_month, event_day)
+
+        if current_month <= 12 and event_month > 12:
+            event_month -= 12
+            event_month = '%02d' % event_month
+            event_year += 1
+
+        event_date = date(event_year, int(event_month), event_day)
         event[0] = str(event_date)
 
         createGevent(event)
@@ -193,7 +214,7 @@ def createGevent(event):
 
     new_event = {
         'summary': summary,
-        'description': 'baseball lesson',
+        'description': 'https://www.esoftplanner.com/v3/employee/login.php?access=0dG81LSVxNmo65bEyHqDuJ2Jpw==',
         'location': location,
         'start': {
             'dateTime': start,
@@ -214,18 +235,15 @@ def createGevent(event):
     }
 
     new_event = service.events().insert(calendarId='primary', body=new_event).execute()
-    print('Creating: %s - %s' % (new_event['summary'], new_event.get('htmlLink')))
+    print('Creating: %s\n%s\n' % (new_event['summary'], new_event.get('htmlLink')))
 
 
 if __name__ == '__main__':
     login()
-    # build out auto year +1 if next month = 1 (jan)
-    month = 0  # value is # of months ahead: 0 = current, 1 = next month, 2 = 2 months forward, etc
-    resetCal()
-
-    while month <= 3:
+    resetCal(11) # value is how many months ahead to refresh calendar
+    while month <= 11: # value is how many months ahead to sync
         print("Checking " + str(month) + " month(s) ahead...")
         pullSched(month)
         month += 1
     else:
-        print('Updated')
+        print('\nSync complete.')
