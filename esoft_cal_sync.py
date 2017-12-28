@@ -63,7 +63,7 @@ def login():
     """
 
     config = configparser.ConfigParser()
-    config.read("c:/code/config.ini")
+    config.read("config.ini")
     client_key = config.get("esoft", "client_key")
     access = config.get("esoft", "access")
     username = config.get("esoft", "username")
