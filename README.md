@@ -16,7 +16,7 @@ You will need to run Google Inspect (Ctrl+Shift+i) while you manually login to e
 
 Add these values following the respective = sign in the config.ini file and make sure it's saved in your working directory. 
 
-##Usage
+## Usage
 
 esoft-cal-sync.py
 
