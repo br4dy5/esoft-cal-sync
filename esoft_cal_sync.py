@@ -211,7 +211,7 @@ def createGevent(event):
     start = datetime.strptime(tmp_start, '%Y-%m-%d %I:%M%p').isoformat('T')
     end = datetime.strptime(tmp_end, '%Y-%m-%d %I:%M%p').isoformat('T')
     summary = 'Lesson: ' + event[2]
-    location = ''
+    location = '' # Enter optional event location within single quotes if desired
 
     new_event = {
         'summary': summary,
