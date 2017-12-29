@@ -5,8 +5,6 @@ Synchronizes eSoft Planner events with Google Calendar
 Follow instructions here: https://console.developers.google.com/apis/credentials?project=api-project-1018300270691
 This should ultimately result in you storing a client_secret.json file in your working directory. 
 
-Note, the Application Name you choose must match the value on Line 27, defaulted to 'esoft-cal-sync'
-
 ## Acquire eSoft Credentials
 You will need your eSoft:
 * username
@@ -31,5 +29,5 @@ esoft-cal-sync.py
 ## Customization
 
 No parameters need to be passed. Account info is provided through config.ini file. Other values can be revised within script which are currently hard-coded, such as:
-* Number of months in future to sync (Line 243)
-* Event Details (Subject: Line 212, Location: Line 213, Reminders: 227)
+* Number of months in future to sync (Line 244)
+* Event Details (Subject: Line 213, Location: Line 214, Reminders: 231-232)
