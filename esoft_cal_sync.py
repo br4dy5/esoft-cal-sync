@@ -24,7 +24,7 @@ except ImportError:
 # at ~/.credentials/calendar-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'esoft-cal-sync'
+APPLICATION_NAME = 'esoft-cal-sync' # Needs to match application name linked to Google API Creds
 
 month = 0  # value is month to begin sync: 0 = current, 1 = next month, 2 = 2 months forward, etc
 
@@ -48,7 +48,7 @@ def get_credentials():
     credentials = store.get()
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
+        flow.user_agent = APPLICATION_NAME 
         if flags:
             credentials = tools.run_flow(flow, store, flags)
         else: # Needed only for compatibility with Python 2.6
@@ -61,7 +61,8 @@ def login():
     """
         Pulls credentials from local config file
     """
-
+    global access
+    
     config = configparser.ConfigParser()
     config.read("config.ini")
     client_key = config.get("esoft", "client_key")
@@ -210,11 +211,11 @@ def createGevent(event):
     start = datetime.strptime(tmp_start, '%Y-%m-%d %I:%M%p').isoformat('T')
     end = datetime.strptime(tmp_end, '%Y-%m-%d %I:%M%p').isoformat('T')
     summary = 'Lesson: ' + event[2]
-    location = 'Performance Sport Systems, 16778 Oakmont Ave, Gaithersburg, MD 20877'
+    location = ''
 
     new_event = {
         'summary': summary,
-        'description': 'https://www.esoftplanner.com/v3/employee/login.php?access=0dG81LSVxNmo65bEyHqDuJ2Jpw==',
+        'description': 'https://www.esoftplanner.com/v3/employee/login.php?access={0}'.format(access),
         'location': location,
         'start': {
             'dateTime': start,
